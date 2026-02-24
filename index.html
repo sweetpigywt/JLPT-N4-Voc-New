@@ -78,8 +78,7 @@
             padding: 16px 24px; border: none; border-radius: 14px;
             font-size: 1rem; font-weight: 700; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none; display: inline-block;
-            text-align: center;
+            text-decoration: none; display: inline-block; text-align: center;
         }
         .btn-primary { background: var(--accent-color); color: white; box-shadow: 0 8px 15px rgba(72, 52, 212, 0.2); }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(72, 52, 212, 0.3); }
@@ -88,7 +87,6 @@
         .btn-outline:hover { background: #fff; border-color: var(--accent-color); }
 
         .btn-sheet { background: #27ae60; color: white; box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2); }
-        .btn-sheet:hover { background: #219150; transform: translateY(-3px); }
 
         /* Selection Options with Feedback */
         .option-btn {
@@ -112,14 +110,17 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .spinner { width: 45px; height: 45px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Score Display */
+        /* Score & Details */
         .score-box { background: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border-bottom: 4px solid var(--accent-color); }
         .score-val { font-size: 3.8rem; font-weight: 900; color: var(--accent-color); line-height: 1; }
-        .list-item { text-align: left; padding: 15px; border-bottom: 1px solid #edf2f7; }
-        .correct { color: var(--success-color); font-weight: bold; }
-        .wrong { color: var(--error-color); font-weight: bold; }
+        .list-item { text-align: left; padding: 15px; border-bottom: 1px solid #edf2f7; font-size: 0.95rem; line-height: 1.5; }
+        .result-text { margin-top: 5px; font-weight: 600; display: block; }
+        .correct-mark { color: var(--success-color); }
+        .wrong-mark { color: var(--error-color); }
+        .ans-detail { font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; margin-right: 5px; }
+        .my-ans { background: #ffebeb; color: var(--error-color); }
+        .right-ans { background: #e6f9ed; color: var(--success-color); }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -178,8 +179,8 @@
             <div style="font-size: 1.1rem; color: #666; margin-bottom: 10px;">あなたのスコア</div>
             <div class="score-val" id="final-score">0 / 20</div>
         </div>
-        <div id="result-meta" style="font-size: 0.95rem; margin-bottom: 25px; color: #555;"></div>
-        <div id="result-details" style="max-height: 250px; overflow-y: auto; background: #fff; border-radius: 15px; border: 1px solid #edf2f7;"></div>
+        <div id="result-meta" style="font-size: 0.95rem; margin-bottom: 20px; color: #555;"></div>
+        <div id="result-details" style="max-height: 280px; overflow-y: auto; background: #fff; border-radius: 15px; border: 1px solid #edf2f7; text-align: left;"></div>
         <button class="btn-primary" onclick="location.reload()" style="margin-top: 25px; width: 100%;">トップへ戻る</button>
     </div>
 
@@ -243,13 +244,10 @@ function startQuiz() {
     const name = document.getElementById('student-name').value.trim();
     const id = document.getElementById('student-id').value.trim();
     const cls = document.getElementById('student-class').value;
-
     if (!name || !id || !cls) { alert("入力を確認してください。"); return; }
-    
     userInfo = { name, id, cls };
     currentQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 20);
     currentIdx = 0; userAnswers = []; quizActive = true;
-    
     document.getElementById('setup').classList.add('hidden');
     document.getElementById('quiz').classList.remove('hidden');
     document.getElementById('user-display').innerText = `${userInfo.cls} | ${userInfo.name}`;
@@ -262,7 +260,6 @@ function showQuestion() {
     document.getElementById('progress-bar').style.width = `${(currentIdx / 20) * 100}%`;
     document.getElementById('q-count').innerText = `Q${currentIdx + 1} / 20`;
     document.getElementById('question-text').innerText = q.question;
-    
     const container = document.getElementById('options-container');
     container.innerHTML = '';
     q.options.forEach((opt, idx) => {
@@ -276,30 +273,39 @@ function showQuestion() {
 async function finishQuiz() {
     quizActive = false;
     toggleLoader(true, "データを保存中...");
-    
     let score = 0;
     const now = new Date();
+    const detailsContainer = document.getElementById('result-details');
     const localWrong = JSON.parse(localStorage.getItem('wrongList_N4') || '{}');
 
     currentQuestions.forEach((q, i) => {
-        const isCorrect = userAnswers[i] === q.answer;
+        const myIdx = userAnswers[i];
+        const correctIdx = q.answer;
+        const isCorrect = myIdx === correctIdx;
         if (isCorrect) score++;
         else {
-            if (!localWrong[q.question]) localWrong[q.question] = { text: q.question, ans: q.options[q.answer], count: 0 };
+            if (!localWrong[q.question]) localWrong[q.question] = { text: q.question, ans: q.options[correctIdx], count: 0 };
             localWrong[q.question].count++;
         }
+        
         const div = document.createElement('div');
         div.className = 'list-item';
-        div.innerHTML = `Q${i+1}: ${isCorrect ? '<span class="correct">○</span>' : '<span class="wrong">×</span>'} ${q.question}`;
-        document.getElementById('result-details').appendChild(div);
+        let content = `<b>Q${i+1}: ${q.question}</b><br>`;
+        if (isCorrect) {
+            content += `<span class="result-text correct-mark">○ 正解: ${q.options[correctIdx]}</span>`;
+        } else {
+            content += `<span class="result-text wrong-mark">× 不正解</span>`;
+            content += `<span class="ans-detail my-ans">あなたの回答: ${q.options[myIdx]}</span>`;
+            content += `<span class="ans-detail right-ans">正しい回答: ${q.options[correctIdx]}</span>`;
+        }
+        div.innerHTML = content;
+        detailsContainer.appendChild(div);
     });
 
     localStorage.setItem('wrongList_N4', JSON.stringify(localWrong));
-
     try {
         await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
+            method: 'POST', mode: 'no-cors',
             body: JSON.stringify({ 
                 name: userInfo.name, id: userInfo.id, cls: userInfo.cls,
                 score: score, date: now.toLocaleDateString('ja-JP'), 
