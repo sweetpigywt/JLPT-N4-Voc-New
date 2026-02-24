@@ -79,6 +79,7 @@
             font-size: 1rem; font-weight: 700; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-decoration: none; display: inline-block;
+            text-align: center;
         }
         .btn-primary { background: var(--accent-color); color: white; box-shadow: 0 8px 15px rgba(72, 52, 212, 0.2); }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(72, 52, 212, 0.3); }
@@ -86,17 +87,18 @@
         .btn-outline { background: #f8f9ff; color: var(--accent-color); border: 2px solid rgba(72, 52, 212, 0.1); }
         .btn-outline:hover { background: #fff; border-color: var(--accent-color); }
 
-        .btn-sheet { background: #27ae60; color: white; }
+        .btn-sheet { background: #27ae60; color: white; box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2); }
+        .btn-sheet:hover { background: #219150; transform: translateY(-3px); }
 
-        /* Selection Options - 配色を復元 */
+        /* Selection Options with Feedback */
         .option-btn {
             display: block; width: 100%; text-align: left; margin: 12px 0;
             background: #fff; border: 2px solid #f1f2f6; color: #444; font-weight: 500;
         }
         .option-btn:hover, .option-btn:active { 
-            background: var(--accent-color); 
-            color: white; 
-            border-color: var(--accent-color); 
+            background: var(--accent-color) !important; 
+            color: white !important; 
+            border-color: var(--accent-color) !important; 
             transform: scale(1.02);
         }
 
@@ -136,7 +138,7 @@
         <h2>語彙テスト</h2>
         <div class="form-group">
             <label>氏名</label>
-            <input type="text" id="student-name" placeholder="田中 太郎">
+            <input type="text" id="student-name" placeholder="例：田中 太郎">
         </div>
         <div style="display: flex; gap: 15px;">
             <div class="form-group">
@@ -155,6 +157,8 @@
         <div class="btn-stack">
             <button class="btn-primary" onclick="startQuiz()">テスト開始</button>
             <button class="btn-outline" onclick="showHistory()">苦手リストを確認</button>
+            <a href="https://docs.google.com/spreadsheets/d/1g9NeGktP6Ctt3fy8okM8zruAOv2iN7FLLTUxiOmI3hk/edit?gid=0#gid=0" 
+               target="_blank" class="link-button btn-sheet">ランキングを表示</a>
         </div>
     </div>
 
@@ -180,11 +184,11 @@
     </div>
 
     <div id="history" class="hidden">
-        <h2>誤答傾向</h2>
+        <h2>弱点分析</h2>
         <div id="history-content" style="text-align: left; max-height: 400px; overflow-y: auto;">
             <h4 style="color: var(--error-color);">🔥 3回以上ミス</h4><div id="err-high"></div>
-            <h4 style="color: #f39c12;">⚠️ 2回ミス</h4><div id="err-mid"></div>
-            <h4 style="color: #7f8c8d;">📖 1回ミス</h4><div id="err-low"></div>
+            <h4 style="color: #f39c12; margin-top:15px;">⚠️ 2回ミス</h4><div id="err-mid"></div>
+            <h4 style="color: #7f8c8d; margin-top:15px;">📖 1回ミス</h4><div id="err-low"></div>
         </div>
         <button class="btn-primary" onclick="location.reload()" style="margin-top: 20px; width: 100%;">戻る</button>
     </div>
@@ -317,6 +321,7 @@ document.addEventListener("visibilitychange", () => {
         document.getElementById('cheat-overlay').classList.remove('hidden');
     }
 });
+
 function showHistory() {
     document.getElementById('setup').classList.add('hidden');
     document.getElementById('history').classList.remove('hidden');
