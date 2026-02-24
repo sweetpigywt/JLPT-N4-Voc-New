@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JLPT N4 語彙テスト - Cloud Edition</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Loading Overlay */
+        #loader {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-radius: 12px;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Buttons */
+        button {
+            padding: 12px 24px;
+            margin: 10px;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        button:hover { background: var(--primary-color); color: white; }
+        .option-btn { display: block; width: 100%; margin: 10px 0; text-align: left; }
+
+        input, select { padding: 10px; width: 80%; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+
+        /* Lists & Tables */
+        .list-item { text-align: left; padding: 10px; border-bottom: 1px solid #eee; margin: 5px 0; }
+        .correct { color: var(--success-color); font-weight: bold; }
+        .wrong { color: var(--error-color); font-weight: bold; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #eee; font-size: 0.9rem; }
+        .rank-1 { background-color: var(--gold); }
+        .rank-2 { background-color: var(--silver); }
+        .rank-3 { background-color: var(--bronze); }
+
+        #cheat-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; color: white; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .score-display { font-size: 3rem; font-weight: bold; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="hidden">
+    <div class="spinner"></div>
+    <p id="loader-text">データを送信中...</p>
+</div>
+
+<div id="cheat-overlay" class="hidden">
+    <h1>【失格】タブの切り替えを検知</h1>
+    <p>テストを無効にしました。</p>
+    <button onclick="location.reload()" style="color: white; border-color: white;">最初からやり直す</button>
+</div>
+
+<div id="setup" class="container">
+    <h2>JLPT N4 語彙テスト</h2>
+    <input type="text" id="student-name" placeholder="氏名を入力してください">
+    <br>
+    <button onclick="startQuiz()">テスト開始（20問）</button>
+    <button onclick="showHistory()">累計の誤答リストを見る</button>
+    <button onclick="teacherLogin()">教師ログイン</button>
+</div>
+
+<div id="quiz" class="container hidden">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <span id="q-count">Q1 / 20</span>
+        <span id="user-display"></span>
+    </div>
+    <h3 id="question-text"></h3>
+    <div id="options-container"></div>
+</div>
+
+<div id="result" class="container hidden">
+    <h2>テスト結果</h2>
+    <div id="result-meta"></div>
+    <div class="score-display" id="final-score"></div>
+    <div id="result-details" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
+    <button onclick="location.reload()">ホームに戻る</button>
+</div>
+
+<div id="history" class="container hidden">
+    <h2>累計誤答リスト (端末保存)</h2>
+    <div id="history-content" style="text-align: left;">
+        <h4>3回以上ミス</h4><div id="err-high"></div>
+        <h4>2回ミス</h4><div id="err-mid"></div>
+        <h4>1回ミス</h4><div id="err-low"></div>
+    </div>
+    <button onclick="clearHistory()">履歴を清空</button>
+    <button onclick="location.reload()">戻る</button>
+</div>
+
+<div id="teacherPanel" class="container hidden">
+    <h2>教師用管理パネル</h2>
+    <label>日付選択：</label>
+    <select id="date-selector" onchange="renderLeaderboard()"></select>
+    <div id="stats-summary" style="margin: 15px 0; font-weight: bold;"></div>
+    <table id="leaderboard">
+        <thead><tr><th>順位</th><th>氏名</th><th>スコア</th><th>時間</th></tr></thead>
+        <tbody id="leaderboard-body"></tbody>
+    </table>
+    <br>
+    <button onclick="location.reload()">ログアウト</button>
+</div>
+
+<script>
+/** API Configuration **/
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgeme0T7uSaLJaCStBplw1uw7xUfEmfqyzgajnEbSMvCLlF9xyNvSiXRrvFCZKTeiFCw/exec";
+
+const allQuestions = [
+    { question: "昨日、デパートで（　）をしました。", options: ["かいもの", "さんぽ", "べんきょう", "そうじ"], answer: 0 },
+    { question: "この料理はとても（　）です。", options: ["おいしい", "にぎやか", "しずか", "ひま"], answer: 0 },
+    { question: "（　）窓を閉めてください。", options: ["ゆっくり", "すぐ", "とても", "たぶん"], answer: 1 },
+    { question: "日本には（　）が四つあります。", options: ["きせつ", "てんき", "くうき", "じしん"], answer: 0 },
+    { question: "駅から家まで（　）10分です。", options: ["あるいて", "いって", "しって", "のって"], answer: 0 },
+    { question: "机の上に本が（　）あります。", options: ["たくさん", "あまり", "ぜんぜん", "すこし"], answer: 0 },
+    { question: "（　）でお酒を飲みます。", options: ["ぎんこう", "いざかや", "きょうしつ", "としょかん"], answer: 1 },
+    { question: "朝起きて、顔を（　）。", options: ["みがきます", "あらいます", "きります", "とります"], answer: 1 },
+    { question: "外は（　）が降っています。", options: ["かぜ", "くも", "あめ", "はれ"], answer: 2 },
+    { question: "このテストは（　）難しいです。", options: ["ちょうど", "かなり", "やっと", "はじめて"], answer: 1 },
+    { question: "おなかが（　）ました。", options: ["あき", "すき", "おき", "なき"], answer: 1 },
+    { question: "毎日（　）を書いています。", options: ["にっき", "きっぷ", "ざっし", "じしょ"], answer: 0 },
+    { question: "弟は背が（　）です。", options: ["ひくい", "みじかい", "おそい", "ふとい"], answer: 0 },
+    { question: "ここで靴を（　）ください。", options: ["きせて", "ぬいで", "はいて", "しめて"], answer: 1 },
+    { question: "昨日は（　）が良かったです。", options: ["てんき", "きぶん", "けしき", "からだ"], answer: 0 },
+    { question: "（　）をつけましょう。", options: ["でんき", "みず", "しんぶん", "かばん"], answer: 0 },
+    { question: "郵便局へ（　）に行きます。", options: ["はがき", "きって", "てがみ", "だし"], answer: 3 },
+    { question: "父は（　）で働いています。", options: ["びょういん", "こうえん", "きっさてん", "プール"], answer: 0 },
+    { question: "（　）を渡る時は注意してください。", options: ["みち", "はし", "かど", "にわ"], answer: 1 },
+    { question: "名前を（　）に書いてください。", options: ["ここ", "だれ", "どこ", "いつ"], answer: 0 }
+];
+
+let currentQuestions = [], currentIdx = 0, userAnswers = [], userName = "", quizActive = false, cloudData = {};
+
+// Loader Utility
+function toggleLoader(show, text = "読み込み中...") {
+    const loader = document.getElementById('loader');
+    document.getElementById('loader-text').innerText = text;
+    show ? loader.classList.remove('hidden') : loader.classList.add('hidden');
+}
+
+// 1) Start Quiz
+function startQuiz() {
+    userName = document.getElementById('student-name').value.trim();
+    if (!userName) { alert("名前を入力してください"); return; }
+    currentQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 20);
+    currentIdx = 0; userAnswers = []; quizActive = true;
+    document.getElementById('setup').classList.add('hidden');
+    document.getElementById('quiz').classList.remove('hidden');
+    document.getElementById('user-display').innerText = `受験者: ${userName}`;
+    showQuestion();
+}
+
+// 2) Quiz Loop
+function showQuestion() {
+    if (currentIdx >= 20) { finishQuiz(); return; }
+    const q = currentQuestions[currentIdx];
+    document.getElementById('q-count').innerText = `Q${currentIdx + 1} / 20`;
+    document.getElementById('question-text').innerText = q.question;
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn'; btn.innerText = opt;
+        btn.onclick = () => { userAnswers.push(idx); currentIdx++; showQuestion(); };
+        container.appendChild(btn);
+    });
+}
+
+// 3) Submit Result to Cloud
+async function finishQuiz() {
+    quizActive = false;
+    toggleLoader(true, "データを送信中...");
+    
+    let score = 0;
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toTimeString().split(' ')[0];
+    const detailsContainer = document.getElementById('result-details');
+    detailsContainer.innerHTML = '';
+    const localWrong = JSON.parse(localStorage.getItem('wrongList') || '{}');
+
+    currentQuestions.forEach((q, i) => {
+        const isCorrect = userAnswers[i] === q.answer;
+        if (isCorrect) score++;
+        else {
+            if (!localWrong[q.question]) localWrong[q.question] = { text: q.question, ans: q.options[q.answer], count: 0 };
+            localWrong[q.question].count++;
+        }
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `Q${i+1}: ${q.question}<br><span class="${isCorrect?'correct':'wrong'}">あなたの解答: ${q.options[userAnswers[i]]} ${isCorrect?'(○)':`(× 正解: ${q.options[q.answer]})`}</span>`;
+        detailsContainer.appendChild(div);
+    });
+
+    localStorage.setItem('wrongList', JSON.stringify(localWrong));
+
+    // Post to Google Sheets
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: userName, score: score, date: dateStr, time: timeStr, timestamp: now.getTime() })
+        });
+    } catch (e) { console.error("Sync failed", e); }
+
+    toggleLoader(false);
+    document.getElementById('quiz').classList.add('hidden');
+    document.getElementById('result').classList.remove('hidden');
+    document.getElementById('final-score').innerText = `${score} / 20`;
+    document.getElementById('result-meta').innerHTML = `<p><strong>受験者:</strong> ${userName}</p><p><strong>日時:</strong> ${dateStr} ${timeStr}</p>`;
+}
+
+// 4) Anti-Cheat Logic
+document.addEventListener("visibilitychange", () => { 
+    if (document.visibilityState === 'hidden' && quizActive) {
+        quizActive = false;
+        document.getElementById('cheat-overlay').classList.remove('hidden');
+    }
+});
+
+// 5) History Management
+function showHistory() {
+    document.getElementById('setup').classList.add('hidden');
+    document.getElementById('history').classList.remove('hidden');
+    const wrong = JSON.parse(localStorage.getItem('wrongList') || '{}');
+    const sections = { high: document.getElementById('err-high'), mid: document.getElementById('err-mid'), low: document.getElementById('err-low') };
+    Object.values(sections).forEach(s => s.innerHTML = '');
+    Object.values(wrong).forEach(item => {
+        const div = document.createElement('div'); div.className = 'list-item';
+        div.innerHTML = `問: ${item.text} <br> <span class="correct">正解: ${item.ans}</span> (ミス: ${item.count}回)`;
+        if (item.count >= 3) sections.high.appendChild(div); else if (item.count === 2) sections.mid.appendChild(div); else sections.low.appendChild(div);
+    });
+}
+function clearHistory() { if(confirm("履歴を削除しますか？")) { localStorage.removeItem('wrongList'); showHistory(); } }
+
+// 6) Teacher Panel & Leaderboard
+async function teacherLogin() {
+    const pass = prompt("パスワードを入力してください");
+    if (pass === "sp1213") {
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('teacherPanel').classList.remove('hidden');
+        toggleLoader(true, "クラウドから成績を取得中...");
+        try {
+            const res = await fetch(SCRIPT_URL);
+            const data = await res.json();
+            processCloudData(data);
+        } catch (e) { 
+            alert("データ取得に失敗しました。GASの権限設定を確認してください。"); 
+            toggleLoader(false); 
+        }
+    } else if (pass !== null) alert("パスワードが違います");
+}
+
+function processCloudData(data) {
+    cloudData = {};
+    const selector = document.getElementById('date-selector');
+    selector.innerHTML = '';
+    
+    data.forEach(entry => {
+        if (!cloudData[entry.date]) cloudData[entry.date] = [];
+        cloudData[entry.date].push(entry);
+    });
+
+    const dates = Object.keys(cloudData).sort().reverse();
+    dates.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d; opt.innerText = d;
+        selector.appendChild(opt);
+    });
+
+    toggleLoader(false);
+    if (dates.length > 0) renderLeaderboard();
+}
+
+function renderLeaderboard() {
+    const date = document.getElementById('date-selector').value;
+    const players = cloudData[date] || [];
+    // Sort: Score Descending, then Timestamp Ascending
+    players.sort((a, b) => b.score !== a.score ? b.score - a.score : a.timestamp - b.timestamp);
+
+    const tbody = document.getElementById('leaderboard-body');
+    tbody.innerHTML = '';
+    let total = 0;
+    players.forEach((p, idx) => {
+        total += p.score;
+        const row = tbody.insertRow();
+        if (idx === 0) row.className = 'rank-1'; else if (idx === 1) row.className = 'rank-2'; else if (idx === 2) row.className = 'rank-3';
+        row.innerHTML = `<td>${idx+1}</td><td>${p.name}</td><td>${p.score}</td><td>${p.time}</td>`;
+    });
+    document.getElementById('stats-summary').innerText = `参加人数: ${players.length}名 | 平均点: ${(total/(players.length||1)).toFixed(1)} / 20`;
+}
+</script>
+</body>
+</html>
