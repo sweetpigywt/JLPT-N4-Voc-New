@@ -3,162 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JLPT N4 語彙テスト - Cloud Edition</title>
+    <title>JLPT N4 語彙テスト - Premium Cloud</title>
     <style>
         :root {
-            --primary-color: #2c3e50;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --accent-color: #4834d4;
             --success-color: #27ae60;
-            --error-color: #e74c3c;
-            --gold: #ffd700;
-            --silver: #c0c0c0;
-            --bronze: #cd7f32;
+            --error-color: #eb4d4b;
+            --text-main: #2d3436;
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background: var(--primary-gradient);
+            background-attachment: fixed;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            color: var(--text-main);
+            overflow-x: hidden;
         }
 
+        /* Glassmorphism Container */
         .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             width: 90%;
-            max-width: 600px;
+            max-width: 550px;
             text-align: center;
             position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 10;
         }
 
         .hidden { display: none !important; }
 
-        /* Loading Overlay */
-        #loader {
+        /* UI Decorative Elements */
+        .deco-block {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            width: 100px; height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            z-index: -1;
+            transform: rotate(45deg);
+        }
+        .deco-1 { top: -30px; right: -30px; background: rgba(118, 75, 162, 0.2); }
+        .deco-2 { bottom: -30px; left: -30px; background: rgba(102, 126, 234, 0.2); }
+
+        /* Typography */
+        h2 { color: var(--accent-color); font-weight: 700; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        .section-tag { font-size: 0.8rem; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
+
+        /* Form Styles */
+        .form-group { text-align: left; margin-bottom: 18px; width: 100%; }
+        .form-group label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 600; color: #444; }
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #edf2f7;
             border-radius: 12px;
-        }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Buttons */
-        button {
-            padding: 12px 24px;
-            margin: 10px;
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            font-size: 1rem;
+            box-sizing: border-box;
             transition: 0.3s;
+            font-size: 1rem;
+            background: #fff;
         }
-        button:hover { background: var(--primary-color); color: white; }
-        .option-btn { display: block; width: 100%; margin: 10px 0; text-align: left; }
+        input:focus, select:focus { border-color: var(--accent-color); outline: none; box-shadow: 0 0 0 3px rgba(72, 52, 212, 0.1); }
 
-        input, select { padding: 10px; width: 80%; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        /* Button System */
+        .btn-stack { display: flex; flex-direction: column; gap: 14px; margin-top: 25px; }
+        button, .link-button {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: var(--accent-color); color: white; box-shadow: 0 8px 15px rgba(72, 52, 212, 0.2); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(72, 52, 212, 0.3); }
+        
+        .btn-outline { background: #f8f9ff; color: var(--accent-color); border: 2px solid rgba(72, 52, 212, 0.1); }
+        .btn-outline:hover { background: #fff; border-color: var(--accent-color); color: var(--accent-color); }
 
-        /* Lists & Tables */
-        .list-item { text-align: left; padding: 10px; border-bottom: 1px solid #eee; margin: 5px 0; }
-        .correct { color: var(--success-color); font-weight: bold; }
-        .wrong { color: var(--error-color); font-weight: bold; }
+        .btn-sheet { background: #27ae60; color: white; box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2); }
+        .btn-sheet:hover { background: #219150; transform: translateY(-3px); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border: 1px solid #eee; font-size: 0.9rem; }
-        .rank-1 { background-color: var(--gold); }
-        .rank-2 { background-color: var(--silver); }
-        .rank-3 { background-color: var(--bronze); }
+        .option-btn {
+            display: block; width: 100%; text-align: left; margin: 12px 0;
+            background: #fff; border: 2px solid #f1f2f6; color: #444; font-weight: 500;
+        }
+        .option-btn:hover { background: var(--accent-color); color: white; border-color: var(--accent-color); }
 
-        #cheat-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; color: white; z-index: 9999;
+        /* Loader Overlay */
+        #loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); z-index: 100; border-radius: 20px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        .score-display { font-size: 3rem; font-weight: bold; margin: 20px 0; }
+        .spinner { width: 45px; height: 45px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Quiz Progress */
+        .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-bottom: 25px; overflow: hidden; }
+        #progress-bar { height: 100%; width: 0%; background: var(--accent-color); transition: 0.4s ease; }
+
+        /* Result Area */
+        .score-box { background: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border-bottom: 4px solid var(--accent-color); }
+        .score-val { font-size: 3.8rem; font-weight: 900; color: var(--accent-color); line-height: 1; }
+        .list-item { text-align: left; padding: 15px; border-bottom: 1px solid #edf2f7; }
+        .correct { color: var(--success-color); font-weight: bold; }
+        .wrong { color: var(--error-color); font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="hidden">
-    <div class="spinner"></div>
-    <p id="loader-text">データを送信中...</p>
+<div class="container">
+    <div class="deco-block deco-1"></div>
+    <div class="deco-block deco-2"></div>
+
+    <div id="loader" class="hidden">
+        <div class="spinner"></div>
+        <p id="loader-text" style="font-weight: 700; margin-top: 15px; color: var(--accent-color);">送信中...</p>
+    </div>
+
+    <div id="setup">
+        <span class="section-tag">JLPT N4 LEVEL</span>
+        <h2>語彙テスト</h2>
+        
+        <div class="form-group">
+            <label>氏名</label>
+            <input type="text" id="student-name" placeholder="例：田中 太郎">
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <div class="form-group">
+                <label>学籍番号</label>
+                <input type="text" id="student-id" placeholder="例：S580">
+            </div>
+            <div class="form-group">
+                <label>クラス</label>
+                <select id="student-class">
+                    <option value="" disabled selected>選択</option>
+                    <option value="SP12">SP12</option>
+                    <option value="SP13">SP13</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-stack">
+            <button class="btn-primary" onclick="startQuiz()">テスト開始（20問）</button>
+            <button class="btn-outline" onclick="showHistory()">累計の誤答リスト</button>
+            <a href="https://docs.google.com/spreadsheets/d/1g9NeGktP6Ctt3fy8okM8zruAOv2iN7FLLTUxiOmI3hk/edit?gid=0#gid=0" 
+               target="_blank" class="link-button btn-sheet">ランキングを確認</a>
+        </div>
+    </div>
+
+    <div id="quiz" class="hidden">
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.95rem; font-weight: 600; color: #666;">
+            <span id="q-count">Q1 / 20</span>
+            <span id="user-display"></span>
+        </div>
+        <h3 id="question-text" style="line-height: 1.6; margin-bottom: 30px; font-size: 1.3rem;"></h3>
+        <div id="options-container"></div>
+    </div>
+
+    <div id="result" class="hidden">
+        <h2>テスト完了</h2>
+        <div class="score-box">
+            <div style="font-size: 1.1rem; color: #666; margin-bottom: 10px;">あなたのスコア</div>
+            <div class="score-val" id="final-score">0 / 20</div>
+        </div>
+        <div id="result-meta" style="font-size: 0.95rem; margin-bottom: 25px; color: #555; background: #fff; padding: 10px; border-radius: 10px;"></div>
+        <div id="result-details" style="max-height: 280px; overflow-y: auto; background: #fff; border-radius: 15px; border: 1px solid #edf2f7;"></div>
+        <button class="btn-primary" onclick="location.reload()" style="margin-top: 25px; width: 100%;">トップ画面に戻る</button>
+    </div>
+
+    <div id="history" class="hidden">
+        <h2>誤答傾向の分析</h2>
+        <div id="history-content" style="text-align: left; max-height: 400px; overflow-y: auto; padding-right: 5px;">
+            <h4 style="color: var(--error-color); border-left: 4px solid var(--error-color); padding-left: 10px;">🔥 苦手（3回以上ミス）</h4><div id="err-high"></div>
+            <h4 style="color: #f39c12; border-left: 4px solid #f39c12; padding-left: 10px; margin-top: 20px;">⚠️ 注意（2回ミス）</h4><div id="err-mid"></div>
+            <h4 style="color: #7f8c8d; border-left: 4px solid #7f8c8d; padding-left: 10px; margin-top: 20px;">📖 学習中（1回ミス）</h4><div id="err-low"></div>
+        </div>
+        <div class="btn-stack">
+            <button class="btn-outline" onclick="clearHistory()">履歴をリセット</button>
+            <button class="btn-primary" onclick="location.reload()">戻る</button>
+        </div>
+    </div>
 </div>
 
 <div id="cheat-overlay" class="hidden">
-    <h1>【失格】タブの切り替えを検知</h1>
-    <p>テストを無効にしました。</p>
-    <button onclick="location.reload()" style="color: white; border-color: white;">最初からやり直す</button>
-</div>
-
-<div id="setup" class="container">
-    <h2>JLPT N4 語彙テスト</h2>
-    <input type="text" id="student-name" placeholder="氏名を入力してください">
-    <br>
-    <button onclick="startQuiz()">テスト開始（20問）</button>
-    <button onclick="showHistory()">累計の誤答リストを見る</button>
-    <button onclick="teacherLogin()">教師ログイン</button>
-</div>
-
-<div id="quiz" class="container hidden">
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-        <span id="q-count">Q1 / 20</span>
-        <span id="user-display"></span>
+    <div style="background: white; color: black; padding: 45px; border-radius: 25px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <h1 style="color: var(--error-color); font-size: 2.5rem;">失 格</h1>
+        <p style="font-weight: 600; font-size: 1.1rem; line-height: 1.8;">
+            試験中にブラウザのタブを切り替えた、<br>または別のアプリを開いたことを検知しました。<br>公平を期すため、この解答は無効です。
+        </p>
+        <button class="btn-primary" onclick="location.reload()">もう一度最初から</button>
     </div>
-    <h3 id="question-text"></h3>
-    <div id="options-container"></div>
-</div>
-
-<div id="result" class="container hidden">
-    <h2>テスト結果</h2>
-    <div id="result-meta"></div>
-    <div class="score-display" id="final-score"></div>
-    <div id="result-details" style="max-height: 300px; overflow-y: auto; margin-bottom: 20px;"></div>
-    <button onclick="location.reload()">ホームに戻る</button>
-</div>
-
-<div id="history" class="container hidden">
-    <h2>累計誤答リスト (端末保存)</h2>
-    <div id="history-content" style="text-align: left;">
-        <h4>3回以上ミス</h4><div id="err-high"></div>
-        <h4>2回ミス</h4><div id="err-mid"></div>
-        <h4>1回ミス</h4><div id="err-low"></div>
-    </div>
-    <button onclick="clearHistory()">履歴を清空</button>
-    <button onclick="location.reload()">戻る</button>
-</div>
-
-<div id="teacherPanel" class="container hidden">
-    <h2>教師用管理パネル</h2>
-    <label>日付選択：</label>
-    <select id="date-selector" onchange="renderLeaderboard()"></select>
-    <div id="stats-summary" style="margin: 15px 0; font-weight: bold;"></div>
-    <table id="leaderboard">
-        <thead><tr><th>順位</th><th>氏名</th><th>スコア</th><th>時間</th></tr></thead>
-        <tbody id="leaderboard-body"></tbody>
-    </table>
-    <br>
-    <button onclick="location.reload()">ログアウト</button>
+    <style>#cheat-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; justify-content: center; align-items: center; }</style>
 </div>
 
 <script>
-/** API Configuration **/
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgeme0T7uSaLJaCStBplw1uw7xUfEmfqyzgajnEbSMvCLlF9xyNvSiXRrvFCZKTeiFCw/exec";
+/** 核心配置 **/
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXkDrayjijT5Z3t7MSTK9tB1t_Gggy6R923j2S_IkvIT7ld-GiguGoYr9u-LB36D3vhQ/exec";
 
 const allQuestions = [
     { question: "昨日、デパートで（　）をしました。", options: ["かいもの", "さんぽ", "べんきょう", "そうじ"], answer: 0 },
@@ -183,33 +240,39 @@ const allQuestions = [
     { question: "名前を（　）に書いてください。", options: ["ここ", "だれ", "どこ", "いつ"], answer: 0 }
 ];
 
-let currentQuestions = [], currentIdx = 0, userAnswers = [], userName = "", quizActive = false, cloudData = {};
+let currentQuestions = [], currentIdx = 0, userAnswers = [], userInfo = {}, quizActive = false;
 
-// Loader Utility
-function toggleLoader(show, text = "読み込み中...") {
+function toggleLoader(show, text) {
     const loader = document.getElementById('loader');
-    document.getElementById('loader-text').innerText = text;
+    if(text) document.getElementById('loader-text').innerText = text;
     show ? loader.classList.remove('hidden') : loader.classList.add('hidden');
 }
 
-// 1) Start Quiz
 function startQuiz() {
-    userName = document.getElementById('student-name').value.trim();
-    if (!userName) { alert("名前を入力してください"); return; }
+    const name = document.getElementById('student-name').value.trim();
+    const id = document.getElementById('student-id').value.trim();
+    const cls = document.getElementById('student-class').value;
+
+    if (!name || !id || !cls) { alert("すべての項目を正しく入力または選択してください。"); return; }
+    
+    userInfo = { name, id, cls };
     currentQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 20);
     currentIdx = 0; userAnswers = []; quizActive = true;
+    
     document.getElementById('setup').classList.add('hidden');
     document.getElementById('quiz').classList.remove('hidden');
-    document.getElementById('user-display').innerText = `受験者: ${userName}`;
+    document.getElementById('user-display').innerText = `${userInfo.cls} | ${userInfo.name}`;
     showQuestion();
 }
 
-// 2) Quiz Loop
 function showQuestion() {
     if (currentIdx >= 20) { finishQuiz(); return; }
+    
     const q = currentQuestions[currentIdx];
+    document.getElementById('progress-bar').style.width = `${(currentIdx / 20) * 100}%`;
     document.getElementById('q-count').innerText = `Q${currentIdx + 1} / 20`;
     document.getElementById('question-text').innerText = q.question;
+    
     const container = document.getElementById('options-container');
     container.innerHTML = '';
     q.options.forEach((opt, idx) => {
@@ -220,18 +283,17 @@ function showQuestion() {
     });
 }
 
-// 3) Submit Result to Cloud
 async function finishQuiz() {
     quizActive = false;
     toggleLoader(true, "データを送信中...");
     
     let score = 0;
     const now = new Date();
-    const dateStr = now.toISOString().split('T')[0];
-    const timeStr = now.toTimeString().split(' ')[0];
+    const dateStr = now.toLocaleDateString('ja-JP');
+    const timeStr = now.toLocaleTimeString('ja-JP');
     const detailsContainer = document.getElementById('result-details');
     detailsContainer.innerHTML = '';
-    const localWrong = JSON.parse(localStorage.getItem('wrongList') || '{}');
+    const localWrong = JSON.parse(localStorage.getItem('wrongList_N4') || '{}');
 
     currentQuestions.forEach((q, i) => {
         const isCorrect = userAnswers[i] === q.answer;
@@ -242,108 +304,55 @@ async function finishQuiz() {
         }
         const div = document.createElement('div');
         div.className = 'list-item';
-        div.innerHTML = `Q${i+1}: ${q.question}<br><span class="${isCorrect?'correct':'wrong'}">あなたの解答: ${q.options[userAnswers[i]]} ${isCorrect?'(○)':`(× 正解: ${q.options[q.answer]})`}</span>`;
+        div.innerHTML = `<span style="color:#999; font-weight:bold; margin-right:8px;">Q${i+1}</span> ${q.question}<br><span class="${isCorrect?'correct':'wrong'}">${isCorrect?'✓ 正解':'✗ 解答: '+q.options[userAnswers[i]] + ' (正解: '+q.options[q.answer]+')'}</span>`;
         detailsContainer.appendChild(div);
     });
 
-    localStorage.setItem('wrongList', JSON.stringify(localWrong));
+    localStorage.setItem('wrongList_N4', JSON.stringify(localWrong));
 
-    // Post to Google Sheets
+    // 后端同步 (必须匹配 GAS 中的变量名)
     try {
         await fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: userName, score: score, date: dateStr, time: timeStr, timestamp: now.getTime() })
+            body: JSON.stringify({ 
+                name: userInfo.name, 
+                id: userInfo.id,
+                cls: userInfo.cls,
+                score: score, 
+                date: dateStr, 
+                time: timeStr, 
+                timestamp: now.getTime() 
+            })
         });
-    } catch (e) { console.error("Sync failed", e); }
+    } catch (e) { console.error("Network sync failed"); }
 
     toggleLoader(false);
     document.getElementById('quiz').classList.add('hidden');
     document.getElementById('result').classList.remove('hidden');
     document.getElementById('final-score').innerText = `${score} / 20`;
-    document.getElementById('result-meta').innerHTML = `<p><strong>受験者:</strong> ${userName}</p><p><strong>日時:</strong> ${dateStr} ${timeStr}</p>`;
+    document.getElementById('result-meta').innerHTML = `氏名: ${userInfo.name}<br>学籍番号: ${userInfo.id} | クラス: ${userInfo.cls}<br>日時: ${dateStr} ${timeStr}`;
 }
 
-// 4) Anti-Cheat Logic
+// 自动作弊检测
 document.addEventListener("visibilitychange", () => { 
-    if (document.visibilityState === 'hidden' && quizActive) {
-        quizActive = false;
-        document.getElementById('cheat-overlay').classList.remove('hidden');
-    }
+    if (document.visibilityState === 'hidden' && quizActive) document.getElementById('cheat-overlay').classList.remove('hidden');
 });
 
-// 5) History Management
 function showHistory() {
     document.getElementById('setup').classList.add('hidden');
     document.getElementById('history').classList.remove('hidden');
-    const wrong = JSON.parse(localStorage.getItem('wrongList') || '{}');
+    const wrong = JSON.parse(localStorage.getItem('wrongList_N4') || '{}');
     const sections = { high: document.getElementById('err-high'), mid: document.getElementById('err-mid'), low: document.getElementById('err-low') };
     Object.values(sections).forEach(s => s.innerHTML = '');
     Object.values(wrong).forEach(item => {
         const div = document.createElement('div'); div.className = 'list-item';
-        div.innerHTML = `問: ${item.text} <br> <span class="correct">正解: ${item.ans}</span> (ミス: ${item.count}回)`;
+        div.innerHTML = `<b>問: ${item.text}</b><br><span class="correct">正解: ${item.ans}</span><br><small>累計ミス: ${item.count}回</small>`;
         if (item.count >= 3) sections.high.appendChild(div); else if (item.count === 2) sections.mid.appendChild(div); else sections.low.appendChild(div);
     });
 }
-function clearHistory() { if(confirm("履歴を削除しますか？")) { localStorage.removeItem('wrongList'); showHistory(); } }
-
-// 6) Teacher Panel & Leaderboard
-async function teacherLogin() {
-    const pass = prompt("パスワードを入力してください");
-    if (pass === "sp1213") {
-        document.getElementById('setup').classList.add('hidden');
-        document.getElementById('teacherPanel').classList.remove('hidden');
-        toggleLoader(true, "クラウドから成績を取得中...");
-        try {
-            const res = await fetch(SCRIPT_URL);
-            const data = await res.json();
-            processCloudData(data);
-        } catch (e) { 
-            alert("データ取得に失敗しました。GASの権限設定を確認してください。"); 
-            toggleLoader(false); 
-        }
-    } else if (pass !== null) alert("パスワードが違います");
-}
-
-function processCloudData(data) {
-    cloudData = {};
-    const selector = document.getElementById('date-selector');
-    selector.innerHTML = '';
-    
-    data.forEach(entry => {
-        if (!cloudData[entry.date]) cloudData[entry.date] = [];
-        cloudData[entry.date].push(entry);
-    });
-
-    const dates = Object.keys(cloudData).sort().reverse();
-    dates.forEach(d => {
-        const opt = document.createElement('option');
-        opt.value = d; opt.innerText = d;
-        selector.appendChild(opt);
-    });
-
-    toggleLoader(false);
-    if (dates.length > 0) renderLeaderboard();
-}
-
-function renderLeaderboard() {
-    const date = document.getElementById('date-selector').value;
-    const players = cloudData[date] || [];
-    // Sort: Score Descending, then Timestamp Ascending
-    players.sort((a, b) => b.score !== a.score ? b.score - a.score : a.timestamp - b.timestamp);
-
-    const tbody = document.getElementById('leaderboard-body');
-    tbody.innerHTML = '';
-    let total = 0;
-    players.forEach((p, idx) => {
-        total += p.score;
-        const row = tbody.insertRow();
-        if (idx === 0) row.className = 'rank-1'; else if (idx === 1) row.className = 'rank-2'; else if (idx === 2) row.className = 'rank-3';
-        row.innerHTML = `<td>${idx+1}</td><td>${p.name}</td><td>${p.score}</td><td>${p.time}</td>`;
-    });
-    document.getElementById('stats-summary').innerText = `参加人数: ${players.length}名 | 平均点: ${(total/(players.length||1)).toFixed(1)} / 20`;
-}
+function clearHistory() { if(confirm("学習履歴をリセットしてもよろしいですか？")) { localStorage.removeItem('wrongList_N4'); showHistory(); } }
 </script>
+
 </body>
 </html>
