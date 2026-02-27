@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja" class="notranslate" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="google" content="notranslate">
+    <title>JLPT N4 語彙テスト - Premium Edition</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --accent-color: #4834d4;
+            --success-color: #27ae60;
+            --error-color: #eb4d4b;
+            --text-main: #2d3436;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background: var(--primary-gradient);
+            background-attachment: fixed;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 550px;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 10;
+        }
+
+        .hidden { display: none !important; }
+
+        .deco-block {
+            position: absolute;
+            width: 100px; height: 100px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            z-index: -1;
+            transform: rotate(45deg);
+        }
+        .deco-1 { top: -30px; right: -30px; background: rgba(118, 75, 162, 0.2); }
+        .deco-2 { bottom: -30px; left: -30px; background: rgba(102, 126, 234, 0.2); }
+
+        h2 { color: var(--accent-color); font-weight: 700; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        .section-tag { font-size: 0.8rem; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
+
+        .form-group { text-align: left; margin-bottom: 18px; width: 100%; }
+        .form-group label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 600; color: #444; }
+        input, select {
+            width: 100%; padding: 14px; border: 2px solid #edf2f7;
+            border-radius: 12px; box-sizing: border-box; transition: 0.3s;
+            font-size: 1rem; background: #fff;
+        }
+        input:focus, select:focus { border-color: var(--accent-color); outline: none; box-shadow: 0 0 0 3px rgba(72, 52, 212, 0.1); }
+
+        .btn-stack { display: flex; flex-direction: column; gap: 14px; margin-top: 25px; }
+        button, .link-button {
+            padding: 16px 24px; border: none; border-radius: 14px;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none; display: inline-block; text-align: center;
+        }
+        .btn-primary { background: var(--accent-color); color: white; box-shadow: 0 8px 15px rgba(72, 52, 212, 0.2); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 20px rgba(72, 52, 212, 0.3); }
+        
+        .btn-outline { background: #f8f9ff; color: var(--accent-color); border: 2px solid rgba(72, 52, 212, 0.1); }
+        .btn-outline:hover { background: #fff; border-color: var(--accent-color); }
+        .btn-sheet { background: #27ae60; color: white; box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2); }
+
+        .option-btn {
+            display: block; width: 100%; text-align: left; margin: 12px 0;
+            background: #fff; border: 2px solid #f1f2f6; color: #444; font-weight: 500;
+        }
+        .option-btn:hover, .option-btn:active { 
+            background: var(--accent-color) !important; 
+            color: white !important; 
+            border-color: var(--accent-color) !important; 
+            transform: scale(1.02);
+        }
+
+        .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-bottom: 25px; overflow: hidden; }
+        #progress-bar { height: 100%; width: 0%; background: var(--accent-color); transition: 0.4s ease; }
+        
+        #loader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); z-index: 100; border-radius: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .spinner { width: 45px; height: 45px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .score-box { background: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border-bottom: 4px solid var(--accent-color); }
+        .score-val { font-size: 3.8rem; font-weight: 900; color: var(--accent-color); line-height: 1; }
+        .list-item { text-align: left; padding: 15px; border-bottom: 1px solid #edf2f7; font-size: 0.95rem; line-height: 1.5; }
+        .result-text { margin-top: 5px; font-weight: 600; display: block; }
+        .correct-mark { color: var(--success-color); }
+        .wrong-mark { color: var(--error-color); }
+        .ans-detail { font-size: 0.85rem; padding: 4px 8px; border-radius: 4px; margin-right: 5px; }
+        .my-ans { background: #ffebeb; color: var(--error-color); }
+        .right-ans { background: #e6f9ed; color: var(--success-color); }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div class="container">
+    <div class="deco-block deco-1"></div>
+    <div class="deco-block deco-2"></div>
+
+    <div id="loader" class="hidden">
+        <div class="spinner"></div>
+        <p id="loader-text" style="font-weight: 700; margin-top: 15px; color: var(--accent-color);">送信中...</p>
+    </div>
+
+    <div id="setup">
+        <span class="section-tag">JLPT N4 LEVEL</span>
+        <h2>語彙テスト</h2>
+        <div class="form-group">
+            <label>氏名</label>
+            <input type="text" id="student-name" placeholder="例：田中 太郎">
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <div class="form-group">
+                <label>学籍番号</label>
+                <input type="text" id="student-id" placeholder="例：S580">
+            </div>
+            <div class="form-group">
+                <label>クラス</label>
+                <select id="student-class">
+                    <option value="" disabled selected>選択</option>
+                    <option value="SP12">SP12</option>
+                    <option value="SP13">SP13</option>
+                </select>
+            </div>
+        </div>
+        <div class="btn-stack">
+            <button class="btn-primary" onclick="startQuiz()">テスト開始</button>
+            <button class="btn-outline" onclick="showHistory()">苦手リストを確認</button>
+            <a href="https://docs.google.com/spreadsheets/d/1g9NeGktP6Ctt3fy8okM8zruAOv2iN7FLLTUxiOmI3hk/edit?gid=0#gid=0" 
+               target="_blank" class="link-button btn-sheet">ランキングを表示</a>
+        </div>
+    </div>
+
+    <div id="quiz" class="hidden">
+        <div class="progress-container"><div id="progress-bar"></div></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.95rem; font-weight: 600; color: #666;">
+            <span id="q-count">Q1 / 20</span>
+            <span id="user-display"></span>
+        </div>
+        <h3 id="question-text" style="line-height: 1.6; margin-bottom: 30px; font-size: 1.3rem;"></h3>
+        <div id="options-container"></div>
+    </div>
+
+    <div id="result" class="hidden">
+        <h2>結果発表</h2>
+        <div class="score-box">
+            <div style="font-size: 1.1rem; color: #666; margin-bottom: 10px;">あなたのスコア</div>
+            <div class="score-val" id="final-score">0 / 20</div>
+        </div>
+        <div id="result-meta" style="font-size: 0.95rem; margin-bottom: 20px; color: #555;"></div>
+        <div id="result-details" style="max-height: 280px; overflow-y: auto; background: #fff; border-radius: 15px; border: 1px solid #edf2f7; text-align: left;"></div>
+        <button class="btn-primary" onclick="location.reload()" style="margin-top: 25px; width: 100%;">トップへ戻る</button>
+    </div>
+
+    <div id="history" class="hidden">
+        <h2>弱点分析</h2>
+        <div id="history-content" style="text-align: left; max-height: 400px; overflow-y: auto;">
+            <h4 style="color: var(--error-color);">🔥 3回以上ミス</h4><div id="err-high"></div>
+            <h4 style="color: #f39c12; margin-top:15px;">⚠️ 2回ミス</h4><div id="err-mid"></div>
+            <h4 style="color: #7f8c8d; margin-top:15px;">📖 1回ミス</h4><div id="err-low"></div>
+        </div>
+        <button class="btn-primary" onclick="location.reload()" style="margin-top: 20px; width: 100%;">戻る</button>
+    </div>
+</div>
+
+<div id="cheat-overlay" class="hidden">
+    <div style="background: white; padding: 40px; border-radius: 25px; text-align: center; width: 85%;">
+        <h1 style="color: var(--error-color);">【失格】</h1>
+        <p style="font-weight: bold; line-height: 1.8;">
+            試験中に画面を切り替えました。<br>この解答は無効です。
+        </p>
+        <button class="btn-primary" onclick="location.reload()" style="width: 100%;">最初からやり直す</button>
+    </div>
+    <style>#cheat-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; justify-content: center; align-items: center; }</style>
+</div>
+
+<script src="questions.js"></script>
+
+<script>
+// 这里填入你的 Google Apps Script URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXkDrayjijT5Z3t7MSTK9tB1t_Gggy6R923j2S_IkvIT7ld-GiguGoYr9u-LB36D3vhQ/exec";
+
+// 变量定义
+let currentQuestions = [], currentIdx = 0, userAnswers = [], userInfo = {}, quizActive = false;
+
+function toggleLoader(show, text) {
+    const loader = document.getElementById('loader');
+    if(text) document.getElementById('loader-text').innerText = text;
+    show ? loader.classList.remove('hidden') : loader.classList.add('hidden');
+}
+
+// 【关键修改点】从 questions.js 的 allQuestions 中随机抽取 20 题
+function startQuiz() {
+    const name = document.getElementById('student-name').value.trim();
+    const id = document.getElementById('student-id').value.trim();
+    const cls = document.getElementById('student-class').value;
+    
+    if (!name || !id || !cls) { alert("入力を確認してください。"); return; }
+    
+    userInfo = { name, id, cls };
+
+    // 真正的随机化逻辑：打乱 310 题并取前 20 题
+    if (typeof allQuestions !== 'undefined' && allQuestions.length > 0) {
+        currentQuestions = [...allQuestions]
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 20);
+    } else {
+        alert("题库加载失败，请检查 questions.js 文件。");
+        return;
+    }
+
+    currentIdx = 0; 
+    userAnswers = []; 
+    quizActive = true;
+    
+    document.getElementById('setup').classList.add('hidden');
+    document.getElementById('quiz').classList.remove('hidden');
+    document.getElementById('user-display').innerText = `${userInfo.cls} | ${userInfo.name}`;
+    showQuestion();
+}
+
+function showQuestion() {
+    if (currentIdx >= 20) { finishQuiz(); return; }
+    const q = currentQuestions[currentIdx];
+    document.getElementById('progress-bar').style.width = `${(currentIdx / 20) * 100}%`;
+    document.getElementById('q-count').innerText = `Q${currentIdx + 1} / 20`;
+    document.getElementById('question-text').innerText = q.question;
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    
+    q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn'; 
+        btn.innerText = opt;
+        btn.onclick = () => { 
+            userAnswers.push(idx); 
+            currentIdx++; 
+            showQuestion(); 
+        };
+        container.appendChild(btn);
+    });
+}
+
+async function finishQuiz() {
+    quizActive = false;
+    toggleLoader(true, "データを保存中...");
+    let score = 0;
+    const now = new Date();
+    const detailsContainer = document.getElementById('result-details');
+    detailsContainer.innerHTML = ''; // 清空之前的详情
+    const localWrong = JSON.parse(localStorage.getItem('wrongList_N4') || '{}');
+
+    currentQuestions.forEach((q, i) => {
+        const myIdx = userAnswers[i];
+        const correctIdx = q.answer;
+        const isCorrect = myIdx === correctIdx;
+        if (isCorrect) score++;
+        else {
+            if (!localWrong[q.question]) localWrong[q.question] = { text: q.question, ans: q.options[correctIdx], count: 0 };
+            localWrong[q.question].count++;
+        }
+        
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        let content = `<b>Q${i+1}: ${q.question}</b><br>`;
+        if (isCorrect) {
+            content += `<span class="result-text correct-mark">○ 正解: ${q.options[correctIdx]}</span>`;
+        } else {
+            content += `<span class="result-text wrong-mark">× 不正解</span>`;
+            content += `<span class="ans-detail my-ans">あなたの回答: ${q.options[myIdx]}</span>`;
+            content += `<span class="ans-detail right-ans">正しい回答: ${q.options[correctIdx]}</span>`;
+        }
+        div.innerHTML = content;
+        detailsContainer.appendChild(div);
+    });
+
+    localStorage.setItem('wrongList_N4', JSON.stringify(localWrong));
+    
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            body: JSON.stringify({ 
+                name: userInfo.name, id: userInfo.id, cls: userInfo.cls,
+                score: score, date: now.toLocaleDateString('ja-JP'), 
+                time: now.toLocaleTimeString('ja-JP'), timestamp: now.getTime() 
+            })
+        });
+    } catch (e) { console.error("Save error:", e); }
+
+    toggleLoader(false);
+    document.getElementById('quiz').classList.add('hidden');
+    document.getElementById('result').classList.remove('hidden');
+    document.getElementById('final-score').innerText = `${score} / 20`;
+    document.getElementById('result-meta').innerHTML = `氏名: ${userInfo.name} | ID: ${userInfo.id} | クラス: ${userInfo.cls}`;
+}
+
+document.addEventListener("visibilitychange", () => { 
+    if (document.visibilityState === 'hidden' && quizActive) {
+        quizActive = false;
+        document.getElementById('cheat-overlay').classList.remove('hidden');
+    }
+});
+
+function showHistory() {
+    document.getElementById('setup').classList.add('hidden');
+    document.getElementById('history').classList.remove('hidden');
+    const wrong = JSON.parse(localStorage.getItem('wrongList_N4') || '{}');
+    const sections = { high: document.getElementById('err-high'), mid: document.getElementById('err-mid'), low: document.getElementById('err-low') };
+    Object.values(sections).forEach(s => s.innerHTML = '');
+    Object.values(wrong).forEach(item => {
+        const div = document.createElement('div'); div.className = 'list-item';
+        div.innerHTML = `<b>${item.text}</b><br>正解: ${item.ans} (${item.count}回)`;
+        if (item.count >= 3) sections.high.appendChild(div); 
+        else if (item.count === 2) sections.mid.appendChild(div); 
+        else sections.low.appendChild(div);
+    });
+}
+</script>
+</body>
+</html>
