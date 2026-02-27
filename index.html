@@ -30,7 +30,6 @@
             user-select: none;
         }
 
-        /* Glassmorphism Container */
         .container {
             background: var(--card-bg);
             padding: 2.5rem;
@@ -47,7 +46,6 @@
 
         .hidden { display: none !important; }
 
-        /* UI Decorative Blocks */
         .deco-block {
             position: absolute;
             width: 100px; height: 100px;
@@ -62,7 +60,6 @@
         h2 { color: var(--accent-color); font-weight: 700; margin-bottom: 1.5rem; font-size: 1.8rem; }
         .section-tag { font-size: 0.8rem; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; display: block; }
 
-        /* Form Styles */
         .form-group { text-align: left; margin-bottom: 18px; width: 100%; }
         .form-group label { display: block; font-size: 0.9rem; margin-bottom: 6px; font-weight: 600; color: #444; }
         input, select {
@@ -72,7 +69,6 @@
         }
         input:focus, select:focus { border-color: var(--accent-color); outline: none; box-shadow: 0 0 0 3px rgba(72, 52, 212, 0.1); }
 
-        /* Button System */
         .btn-stack { display: flex; flex-direction: column; gap: 14px; margin-top: 25px; }
         button, .link-button {
             padding: 16px 24px; border: none; border-radius: 14px;
@@ -85,10 +81,8 @@
         
         .btn-outline { background: #f8f9ff; color: var(--accent-color); border: 2px solid rgba(72, 52, 212, 0.1); }
         .btn-outline:hover { background: #fff; border-color: var(--accent-color); }
-
         .btn-sheet { background: #27ae60; color: white; box-shadow: 0 8px 15px rgba(39, 174, 96, 0.2); }
 
-        /* Selection Options with Feedback */
         .option-btn {
             display: block; width: 100%; text-align: left; margin: 12px 0;
             background: #fff; border: 2px solid #f1f2f6; color: #444; font-weight: 500;
@@ -100,7 +94,6 @@
             transform: scale(1.02);
         }
 
-        /* Progress & Loader */
         .progress-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin-bottom: 25px; overflow: hidden; }
         #progress-bar { height: 100%; width: 0%; background: var(--accent-color); transition: 0.4s ease; }
         
@@ -110,8 +103,8 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .spinner { width: 45px; height: 45px; border: 5px solid #f3f3f3; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Score & Details */
         .score-box { background: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border-bottom: 4px solid var(--accent-color); }
         .score-val { font-size: 3.8rem; font-weight: 900; color: var(--accent-color); line-height: 1; }
         .list-item { text-align: left; padding: 15px; border-bottom: 1px solid #edf2f7; font-size: 0.95rem; line-height: 1.5; }
@@ -206,32 +199,13 @@
     <style>#cheat-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; justify-content: center; align-items: center; }</style>
 </div>
 
+<script src="questions.js"></script>
+
 <script>
+// 这里填入你的 Google Apps Script URL
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXkDrayjijT5Z3t7MSTK9tB1t_Gggy6R923j2S_IkvIT7ld-GiguGoYr9u-LB36D3vhQ/exec";
 
-const allQuestions = [
-    { question: "昨日、デパートで（　）をしました。", options: ["かいもの", "さんぽ", "べんきょう", "そうじ"], answer: 0 },
-    { question: "この料理はとても（　）です。", options: ["おいしい", "にぎやか", "しずか", "ひま"], answer: 0 },
-    { question: "（　）窓を閉めてください。", options: ["ゆっくり", "すぐ", "とても", "たぶん"], answer: 1 },
-    { question: "日本には（　）が四つあります。", options: ["きせつ", "てんき", "くうき", "じしん"], answer: 0 },
-    { question: "駅から家まで（　）10分です。", options: ["あるいて", "いって", "しって", "のって"], answer: 0 },
-    { question: "机の上に本が（　）あります。", options: ["たくさん", "あまり", "ぜんぜん", "すこし"], answer: 0 },
-    { question: "（　）でお酒を飲みます。", options: ["ぎんこう", "いざかや", "きょうしつ", "としょかん"], answer: 1 },
-    { question: "朝起きて、顔を（　）。", options: ["みがきます", "あらいます", "きります", "とります"], answer: 1 },
-    { question: "外は（　）が降っています。", options: ["かぜ", "くも", "あめ", "はれ"], answer: 2 },
-    { question: "このテストは（　）難しいです。", options: ["ちょうど", "かなり", "やっと", "はじめて"], answer: 1 },
-    { question: "おなかが（　）ました。", options: ["あき", "すき", "おき", "なき"], answer: 1 },
-    { question: "毎日（　）を書いています。", options: ["にっき", "きっぷ", "ざっし", "じしょ"], answer: 0 },
-    { question: "弟は背が（　）です。", options: ["ひくい", "みじかい", "おそい", "ふとい"], answer: 0 },
-    { question: "ここで靴を（　）ください。", options: ["きせて", "ぬいで", "はいて", "しめて"], answer: 1 },
-    { question: "昨日は（　）が良かったです。", options: ["てんき", "きぶん", "けしき", "からだ"], answer: 0 },
-    { question: "（　）をつけましょう。", options: ["でんき", "みず", "しんぶん", "かばん"], answer: 0 },
-    { question: "郵便局へ（　）に行きます。", options: ["はがき", "きって", "てがみ", "だし"], answer: 3 },
-    { question: "父は（　）で働いています。", options: ["びょういん", "こうえん", "きっさてん", "プール"], answer: 0 },
-    { question: "（　）を渡る時は注意してください。", options: ["みち", "はし", "かど", "にわ"], answer: 1 },
-    { question: "名前を（　）に書いてください。", options: ["ここ", "だれ", "どこ", "いつ"], answer: 0 }
-];
-
+// 变量定义
 let currentQuestions = [], currentIdx = 0, userAnswers = [], userInfo = {}, quizActive = false;
 
 function toggleLoader(show, text) {
@@ -240,14 +214,30 @@ function toggleLoader(show, text) {
     show ? loader.classList.remove('hidden') : loader.classList.add('hidden');
 }
 
+// 【关键修改点】从 questions.js 的 allQuestions 中随机抽取 20 题
 function startQuiz() {
     const name = document.getElementById('student-name').value.trim();
     const id = document.getElementById('student-id').value.trim();
     const cls = document.getElementById('student-class').value;
+    
     if (!name || !id || !cls) { alert("入力を確認してください。"); return; }
+    
     userInfo = { name, id, cls };
-    currentQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 20);
-    currentIdx = 0; userAnswers = []; quizActive = true;
+
+    // 真正的随机化逻辑：打乱 310 题并取前 20 题
+    if (typeof allQuestions !== 'undefined' && allQuestions.length > 0) {
+        currentQuestions = [...allQuestions]
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 20);
+    } else {
+        alert("题库加载失败，请检查 questions.js 文件。");
+        return;
+    }
+
+    currentIdx = 0; 
+    userAnswers = []; 
+    quizActive = true;
+    
     document.getElementById('setup').classList.add('hidden');
     document.getElementById('quiz').classList.remove('hidden');
     document.getElementById('user-display').innerText = `${userInfo.cls} | ${userInfo.name}`;
@@ -262,10 +252,16 @@ function showQuestion() {
     document.getElementById('question-text').innerText = q.question;
     const container = document.getElementById('options-container');
     container.innerHTML = '';
+    
     q.options.forEach((opt, idx) => {
         const btn = document.createElement('button');
-        btn.className = 'option-btn'; btn.innerText = opt;
-        btn.onclick = () => { userAnswers.push(idx); currentIdx++; showQuestion(); };
+        btn.className = 'option-btn'; 
+        btn.innerText = opt;
+        btn.onclick = () => { 
+            userAnswers.push(idx); 
+            currentIdx++; 
+            showQuestion(); 
+        };
         container.appendChild(btn);
     });
 }
@@ -276,6 +272,7 @@ async function finishQuiz() {
     let score = 0;
     const now = new Date();
     const detailsContainer = document.getElementById('result-details');
+    detailsContainer.innerHTML = ''; // 清空之前的详情
     const localWrong = JSON.parse(localStorage.getItem('wrongList_N4') || '{}');
 
     currentQuestions.forEach((q, i) => {
@@ -303,6 +300,7 @@ async function finishQuiz() {
     });
 
     localStorage.setItem('wrongList_N4', JSON.stringify(localWrong));
+    
     try {
         await fetch(SCRIPT_URL, {
             method: 'POST', mode: 'no-cors',
@@ -312,7 +310,7 @@ async function finishQuiz() {
                 time: now.toLocaleTimeString('ja-JP'), timestamp: now.getTime() 
             })
         });
-    } catch (e) {}
+    } catch (e) { console.error("Save error:", e); }
 
     toggleLoader(false);
     document.getElementById('quiz').classList.add('hidden');
@@ -337,7 +335,9 @@ function showHistory() {
     Object.values(wrong).forEach(item => {
         const div = document.createElement('div'); div.className = 'list-item';
         div.innerHTML = `<b>${item.text}</b><br>正解: ${item.ans} (${item.count}回)`;
-        if (item.count >= 3) sections.high.appendChild(div); else if (item.count === 2) sections.mid.appendChild(div); else sections.low.appendChild(div);
+        if (item.count >= 3) sections.high.appendChild(div); 
+        else if (item.count === 2) sections.mid.appendChild(div); 
+        else sections.low.appendChild(div);
     });
 }
 </script>
