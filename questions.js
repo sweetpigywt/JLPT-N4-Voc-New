@@ -1689,7 +1689,7 @@ const allQuestions = [
       "タイプ",
       "スクリーン"
     ],
-    "answer": 0
+    "answer": 1
   },
   {
     "day": 15,
@@ -1701,7 +1701,7 @@ const allQuestions = [
       "なかなか",
       "どうどう"
     ],
-    "answer": 0
+    "answer": 1
   },
   {
     "day": 15,
@@ -1725,7 +1725,7 @@ const allQuestions = [
       "さげました",
       "うえました"
     ],
-    "answer": 0
+    "answer": 3
   },
   {
     "day": 15,
@@ -1737,7 +1737,7 @@ const allQuestions = [
       "やさしい",
       "やわらかい"
     ],
-    "answer": 0
+    "answer": 3
   },
   {
     "day": 15,
@@ -1749,7 +1749,7 @@ const allQuestions = [
       "このみちはよるさびしいです。",
       "このみちはよるにぎやかです。"
     ],
-    "answer": 0
+    "answer": 1
   },
   {
     "day": 15,
@@ -2121,7 +2121,7 @@ const allQuestions = [
       "くすりをとりに⾏きました。",
       "かみのけをきりに⾏きました。"
     ],
-    "answer": 0
+    "answer": 2
   },
   {
     "day": 18,
