@@ -945,7 +945,7 @@ const allQuestions = [
       "てがきれいです。",
       "てがつめたいです。"
     ],
-    "answer": 0
+    "answer": 1
   },
   {
     "day": 8,
@@ -3734,3 +3734,4 @@ const allQuestions = [
     "answer": 2
   }
 ];
+
